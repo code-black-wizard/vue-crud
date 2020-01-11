@@ -6,7 +6,7 @@
         <button @click="clearTodoList" type="button" class="btn btn-danger">Удалить все</button>
       </div>
       <div class="input-group col-md-4">
-        <input v-model="searchTodo" type="text" class="form-control" placeholder="Search for..." aria-label="Recipient's username" aria-describedby="button-addon2">
+        <input v-model.trim="searchTodo" type="text" class="form-control" placeholder="Search for..." aria-label="Recipient's username" aria-describedby="button-addon2">
         <div class="input-group-append">
           <button class="btn btn-outline-secondary" type="button" id="button-addon2">Go!</button>
         </div>
@@ -22,16 +22,16 @@
         </div>
       </form>
     </div>
-    <div v-for="item in getTodoList" :key="item.id">
+    <div v-for="(item, index) in getTodoList" :key="item.id">
       <div class="shadow-lg p-3 mb-2 bg-white rounded">
         <div class="row align-items-center pl-1">
           <div v-if="item.isChange" class="mr-1">
-            <input :value="item.name" @change="setNewTodoName($event)" type="text" class="form-control">
+            <input v-model.trim="item.name" type="text" class="form-control">
           </div>
           <div v-else class="mr-1">{{ item.name }}</div>
           <div v-if="item.isChange">
             <button @click="saveNameTodo(item)" type="button" class="btn btn-success mr-1">Сохранить</button>
-            <button @click="cancelChange(item)" type="button" class="btn btn-danger">Отмена</button>
+            <button @click="cancelChange(item, index)" type="button" class="btn btn-danger">Отмена</button>
           </div>
           <div v-else>
             <button @click="changeNameTodo(item)" type="button" class="btn btn-warning mr-1 text-white">Редактировать</button>
@@ -52,7 +52,7 @@ export default {
       todoTitle: '',
       searchTodo: '',
       todoList: [],
-      newNameTodo: ''
+      todoListCopy: []
     }
   },
   computed: {
@@ -72,6 +72,7 @@ export default {
         })
         this.showField = false
         this.todoTitle = ''
+        this.todoListCopy = JSON.parse(JSON.stringify(this.todoList))
       } else {
         alert('Введите название')
       }
@@ -84,22 +85,17 @@ export default {
     },
     changeNameTodo (item) {
       item.isChange = true
-      this.newNameTodo = ''
     },
-    cancelChange (item) {
+    cancelChange (item, index) {
+      this.todoList[index].name = this.todoListCopy[index].name
       item.isChange = false
-      this.newNameTodo = ''
     },
     saveNameTodo (item) {
-      if (this.newNameTodo !== '') {
-        item.name = this.newNameTodo
+      if (item.name !== '') {
         item.isChange = false
       } else {
         alert('Поле не может быть пустым')
       }
-    },
-    setNewTodoName (evt) {
-      this.newNameTodo = evt.target.value
     }
   }
 }
